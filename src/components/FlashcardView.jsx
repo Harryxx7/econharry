@@ -223,7 +223,14 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
 // Minimal inline markdown renderer for card back
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 
 function ReactMarkdownInline({ content }) {
-  return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+      {content}
+    </ReactMarkdown>
+  )
 }

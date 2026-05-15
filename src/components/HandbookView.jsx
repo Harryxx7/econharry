@@ -1,5 +1,8 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 import { Tag, Flame } from 'lucide-react'
 
 const DIFFICULTY_LABEL = { easy: '基础', medium: '重点', hard: '难点' }
@@ -49,7 +52,7 @@ export default function HandbookView({ note, getSubjectColor }) {
       {/* Markdown body */}
       <div className="px-6 py-5 max-w-3xl">
         <div className="prose-custom">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
             {note.content}
           </ReactMarkdown>
         </div>
