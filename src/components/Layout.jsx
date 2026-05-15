@@ -62,6 +62,7 @@ export default function Layout({
             onChange={e => setQuery(e.target.value)}
             placeholder="搜索知识点..."
             className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-100 rounded-full border border-transparent focus:outline-none focus:border-indigo-300 focus:bg-white transition-all"
+            style={{ fontSize: '16px' }}
           />
         </div>
 

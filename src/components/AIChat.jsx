@@ -288,7 +288,7 @@ export default function AIChat({ notes, inline }) {
             placeholder="问个知识点..."
             rows={1}
             className="flex-1 resize-none text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-300 focus:bg-white transition-all max-h-32 overflow-y-auto"
-            style={{ minHeight: '38px' }}
+            style={{ minHeight: '38px', fontSize: '16px' }}
           />
           <button
             onClick={send}
