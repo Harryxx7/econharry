@@ -63,7 +63,7 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }
   }
 
-  const { question, kbContext, model = 'deepseek-chat', history = [], style = 'default' } = body
+  const { question, kbContext, model = 'deepseek-v4-flash', history = [], style = 'default' } = body
 
   // 拼接最终 system prompt = 基础 + 风格偏好（未知 style 值降级为 default）
   const styleHint = STYLE_HINTS[style] ?? ''

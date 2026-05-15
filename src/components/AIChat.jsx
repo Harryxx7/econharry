@@ -10,6 +10,7 @@ import 'katex/dist/katex.min.css'
 // ─── 常量 ────────────────────────────────────────────────
 const STORAGE_KEY = 'kc431_chat_history'
 const STYLE_KEY   = 'kc431_chat_style'
+const MODEL_KEY   = 'kc431_chat_model'
 
 const WELCOME_MSG = {
   role: 'assistant',
@@ -35,13 +36,12 @@ const STYLES = [
   },
 ]
 
-const COMPLEX_KEYWORDS = ['推导', '计算', '证明', '论述', '推算', '分析', '比较', '评价', '为什么', '如何理解']
+const MODELS = [
+  { key: 'deepseek-v4-flash', label: 'Flash', title: 'V4 Flash · 更快，日常问答首选' },
+  { key: 'deepseek-v4-pro',   label: 'Pro',   title: 'V4 Pro · 更强，复杂推导/论述首选' },
+]
 
 // ─── 工具函数 ─────────────────────────────────────────────
-function isComplex(text) {
-  return COMPLEX_KEYWORDS.some(k => text.includes(k))
-}
-
 function loadMessages() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -64,6 +64,14 @@ function saveStyle(s) {
   try { localStorage.setItem(STYLE_KEY, s) } catch {}
 }
 
+function loadModel() {
+  try { return localStorage.getItem(MODEL_KEY) || 'deepseek-v4-flash' } catch { return 'deepseek-v4-flash' }
+}
+
+function saveModel(m) {
+  try { localStorage.setItem(MODEL_KEY, m) } catch {}
+}
+
 /**
  * 把 DeepSeek 可能输出的 \[...\] 和 \(...\) 统一转成
  * remark-math 能识别的 $$...$$ 和 $...$
@@ -78,6 +86,27 @@ function normalizeMath(text) {
 }
 
 // ─── 子组件 ───────────────────────────────────────────────
+function ModelSwitcher({ model, onChange }) {
+  return (
+    <div className="flex rounded-lg bg-slate-100 p-0.5 gap-0.5">
+      {MODELS.map(m => (
+        <button
+          key={m.key}
+          title={m.title}
+          onClick={() => onChange(m.key)}
+          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+            model === m.key
+              ? 'bg-white text-violet-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {m.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function StyleSwitcher({ style, onChange }) {
   return (
     <div className="flex rounded-lg bg-slate-100 p-0.5 gap-0.5">
@@ -155,6 +184,7 @@ export default function AIChat({ notes, inline }) {
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
   const [style, setStyle]       = useState(loadStyle)
+  const [model, setModel]       = useState(loadModel)
 
   const bottomRef = useRef(null)
   const inputRef  = useRef(null)
@@ -167,6 +197,11 @@ export default function AIChat({ notes, inline }) {
   function updateStyle(s) {
     setStyle(s)
     saveStyle(s)
+  }
+
+  function updateModel(m) {
+    setModel(m)
+    saveModel(m)
   }
 
   function clearHistory() {
@@ -191,8 +226,6 @@ export default function AIChat({ notes, inline }) {
       const kbContext = hasKbContext
         ? relevant.map(n => `【${n.title}】\n${n.content}`).join('\n\n---\n\n')
         : null
-
-      const model = isComplex(text) ? 'deepseek-reasoner' : 'deepseek-chat'
 
       const res = await fetch('/.netlify/functions/ai-chat', {
         method: 'POST',
@@ -243,6 +276,7 @@ export default function AIChat({ notes, inline }) {
           <Bot size={16} className="text-indigo-600 flex-shrink-0" />
           <span className="font-semibold text-slate-700 text-sm">AI 助手</span>
           <div className="ml-auto flex items-center gap-2">
+            <ModelSwitcher model={model} onChange={updateModel} />
             <StyleSwitcher style={style} onChange={updateStyle} />
             <button
               onClick={clearHistory}
@@ -282,7 +316,10 @@ export default function AIChat({ notes, inline }) {
         {/* 移动端工具栏（inline 模式才显示） */}
         {inline && (
           <div className="flex items-center justify-between mb-2">
-            <StyleSwitcher style={style} onChange={updateStyle} />
+            <div className="flex items-center gap-1.5">
+              <ModelSwitcher model={model} onChange={updateModel} />
+              <StyleSwitcher style={style} onChange={updateStyle} />
+            </div>
             <button
               onClick={clearHistory}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
