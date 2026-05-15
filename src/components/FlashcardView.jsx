@@ -164,8 +164,9 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
               <div className="flex-1 overflow-y-auto p-5 text-sm text-slate-700 leading-relaxed prose-custom">
                 <ReactMarkdownInline content={answer} />
                 {tip && (
-                  <div className="mt-3 p-3 bg-amber-50 border-l-3 border-amber-400 rounded-r text-xs text-amber-800">
-                    <span className="font-semibold">考点提示：</span>{tip}
+                  <div className="mt-3 p-3 bg-amber-50 border-l-3 border-amber-400 rounded-r text-xs text-amber-800 prose-custom">
+                    <span className="font-semibold">考点提示：</span>
+                    <ReactMarkdownInline content={tip} />
                   </div>
                 )}
               </div>
