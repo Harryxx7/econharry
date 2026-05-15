@@ -9,9 +9,6 @@
 [functions]
   node_bundler = "esbuild"
 
-[functions."ai-chat"]
-  timeout = 60
-
 [[redirects]]
   from = "/*"
   to = "/index.html"

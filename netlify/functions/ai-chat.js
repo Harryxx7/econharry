@@ -13,10 +13,8 @@ const BASE_PROMPT = `你是一个辅助备考复旦大学431金融专硕的学�
 
 // 风格指令：三种模式差异要足够大，用具体格式要求而非模糊偏好
 const STYLE_HINTS = {
-  // 默认：不附加任何风格指令，模型按自然方式回答
   default: '',
 
-  // 引导式：主动提问，让用户先思考，再补充
   socratic:
     '\n\n【当前模式：引导式】\n' +
     '不要直接给出答案。先用 1-2 个问题探一下用户的已有理解或思路，' +
@@ -24,7 +22,6 @@ const STYLE_HINTS = {
     '例如："你觉得这里的关键变量是什么？" 或 "如果利率上升，你预期价格会怎么变？"\n' +
     '如果用户明确说"直接告诉我答案"，再给完整解答。',
 
-  // 精炼式：结论优先，禁止铺垫，结构紧凑
   concise:
     '\n\n【当前模式：精炼】\n' +
     '严格按以下结构回答，不得添加多余内容：\n' +
@@ -35,37 +32,45 @@ const STYLE_HINTS = {
     '多个要点优先用列表，不用长段落。目标是用最少的字说清楚。',
 }
 
-exports.handler = async function (event) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+// Netlify Functions v2 格式，支持流式响应（解决 504 超时问题）
+export default async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('', { status: 204, headers: CORS_HEADERS })
   }
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers, body: '' }
-  }
-
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) }
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    })
   }
 
   const apiKey = process.env.DEEPSEEK_API_KEY
   if (!apiKey) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured' }) }
+    return new Response(JSON.stringify({ error: 'API key not configured' }), {
+      status: 500,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    })
   }
 
   let body
   try {
-    body = JSON.parse(event.body)
+    body = await req.json()
   } catch {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }
+    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+      status: 400,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    })
   }
 
   const { question, kbContext, model = 'deepseek-v4-flash', history = [], style = 'default' } = body
 
-  // 拼接最终 system prompt = 基础 + 风格偏好（未知 style 值降级为 default）
   const styleHint = STYLE_HINTS[style] ?? ''
   const systemPrompt = BASE_PROMPT + styleHint
 
@@ -80,30 +85,31 @@ exports.handler = async function (event) {
     { role: 'user', content: userContent },
   ]
 
-  try {
-    const upstream = await fetch(DEEPSEEK_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 2000 }),
+  const upstream = await fetch(DEEPSEEK_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 2000, stream: true }),
+  })
+
+  if (!upstream.ok) {
+    const err = await upstream.text()
+    return new Response(JSON.stringify({ error: `DeepSeek [${upstream.status}] ${err}` }), {
+      status: upstream.status,
+      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
     })
-
-    if (!upstream.ok) {
-      const err = await upstream.text()
-      return {
-        statusCode: upstream.status,
-        headers,
-        body: JSON.stringify({ error: `DeepSeek [${upstream.status}] ${err}` }),
-      }
-    }
-
-    const data = await upstream.json()
-    const answer = data.choices?.[0]?.message?.content ?? '抱歉，没有收到有效回答。'
-
-    return { statusCode: 200, headers, body: JSON.stringify({ answer }) }
-  } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) }
   }
+
+  // 将 DeepSeek 的 SSE 流直接透传给前端
+  return new Response(upstream.body, {
+    status: 200,
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'X-Accel-Buffering': 'no',
+    },
+  })
 }

@@ -239,15 +239,55 @@ export default function AIChat({ notes, inline }) {
         }),
       })
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || `HTTP ${res.status}`)
+      }
 
-      setMessages(prev => [...prev, {
+      // ── 流式读取 SSE ──────────────────────────────────────
+      const reader  = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer  = ''
+      let fullContent = ''
+
+      // 先插入一条空的 assistant 消息，后续逐字更新
+      const baseMsg = {
         role: 'assistant',
-        content: normalizeMath(data.answer),
+        content: '',
         sourceLabel: hasKbContext ? 'kb' : 'ai',
         usedNotes: hasKbContext ? relevant : [],
-      }])
+      }
+      setMessages(prev => [...prev, baseMsg])
+
+      outer: while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() // 保留不完整的最后一行
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const payload = line.slice(6).trim()
+          if (payload === '[DONE]') break outer
+          try {
+            const parsed = JSON.parse(payload)
+            const delta = parsed.choices?.[0]?.delta?.content || ''
+            if (delta) {
+              fullContent += delta
+              setMessages(prev => {
+                const updated = [...prev]
+                const last = updated[updated.length - 1]
+                if (last?.role === 'assistant') {
+                  updated[updated.length - 1] = { ...last, content: normalizeMath(fullContent) }
+                }
+                return updated
+              })
+            }
+          } catch { /* 忽略非 JSON 行 */ }
+        }
+      }
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
