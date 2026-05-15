@@ -148,5 +148,5 @@ export default async (request) => {
   }
 }
 
-// 拦截路径：和前端调用地址一致
-export const config = { path: '/api/ai-chat' }
+// AI 代理已切回普通 Netlify Function。保留此文件仅防止旧部署引用。
+export const config = { path: '/api/ai-chat-edge-disabled' }
