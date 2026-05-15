@@ -1,64 +1,24 @@
 ---
-title: CAPM与证券市场线（SML）
+title: CAPM 模型与 SML 证券市场线
 subject: 投资学
 chapter: 第四章-资产定价模型
-tags: [CAPM, SML, Beta系数, 证券市场线, 系统风险]
-difficulty: hard
+tags: [CAPM, SML, 证券市场线, 期望收益]
+difficulty: medium
 flashcard: true
 ---
 
 ## 问题
-CAPM 的公式和假设是什么？β系数如何计算？SML 与 CML 有何区别？
+
+CAPM 模型的期望收益公式与 SML 斜率？
 
 ## 答案
 
-### 1. CAPM 核心公式（证券市场线 SML）
+### 17. CAPM 模型
 
-$$R_S = R_f + \beta_i(R_M - R_f)$$
+某种证券或证券组合的期望收益：
 
-某种证券组合的期望收益：
+$$\bar{R} = R_f + \beta(\bar{R}_m - R_f) = \bar{R}_m - R_f$$
 
-$$\bar{R} = R_f + \beta(\bar{R}_m - R_f)$$
+SML 斜率：
 
-SML 斜率 = $\frac{\bar{R}_m - R_f}{1} = \bar{R}_m - R_f$（市场风险溢价）
-
----
-
-### 2. β 系数
-
-$$\beta_i = \frac{Cov(R_i, R_m)}{\sigma^2(R_m)} = \frac{\sigma_{iM}}{\sigma_M^2}$$
-
-**含义**：资产 $i$ 相对于市场组合的系统风险暴露程度。
-
----
-
-### 3. CAPM 假设条件
-
-1. 投资者是均值-方差优化者（理性）
-2. 所有投资者有相同预期（同质预期）
-3. 市场完美（无摩擦、无税）
-4. 投资者可以无限制地以无风险利率借贷
-5. 所有资产可交易，包括人力资本
-
----
-
-### 4. SML 与 CML 的区别
-
-| | CML（资本市场线） | SML（证券市场线） |
-|--|--|--|
-| 横轴 | $\sigma$（总风险） | $\beta$（系统风险） |
-| 适用对象 | 只适用于**有效组合** | 适用于**所有资产和组合** |
-| 含义 | 有效前沿 | 均衡定价关系 |
-
----
-
-### 5. Alpha（$\alpha$）
-
-$$\alpha_i = E(r_i) - [r_f + \beta_i(E(r_M) - r_f)]$$
-
-- $\alpha > 0$：资产被低估（位于 SML 上方）
-- $\alpha < 0$：资产被高估（位于 SML 下方）
-- $\alpha = 0$：定价公允
-
-## 考点提示
-> CAPM 只有**系统风险（β）**获得补偿，非系统风险通过分散化可消除，不应获得额外回报。$\alpha$ 不为零意味着市场定价偏差，是主动投资的超额收益来源。
+$$\frac{\bar{R}_m - R_f}{\beta_M} = \frac{\bar{R}_m - R_f}{1} = \bar{R}_m - R_f$$
