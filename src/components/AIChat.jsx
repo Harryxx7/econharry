@@ -227,7 +227,7 @@ export default function AIChat({ notes, inline }) {
         ? relevant.map(n => `【${n.title}】\n${n.content}`).join('\n\n---\n\n')
         : null
 
-      const res = await fetch('/.netlify/functions/ai-chat', {
+      const res = await fetch('/api/ai-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
