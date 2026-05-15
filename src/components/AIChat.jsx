@@ -1,5 +1,26 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, Bot, BookOpen, Loader2 } from 'lucide-react'
+import { Send, Bot, BookOpen, Loader2, Trash2 } from 'lucide-react'
+
+const STORAGE_KEY = 'kc431_chat_history'
+const WELCOME_MSG = {
+  role: 'assistant',
+  content: '你好！我是你的431备考助手 👋\n\n你可以问我知识点相关的问题，我会优先从你的知识库里找答案。如果你的知识库里没有，我会额外补充并说明。',
+  sourceLabel: null,
+}
+
+function loadMessages() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return [WELCOME_MSG]
+}
+
+function saveMessages(msgs) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs.slice(-50)))
+  } catch {}
+}
 import { findRelevantContext } from '../utils/knowledgeSearch'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -58,21 +79,22 @@ function MessageBubble({ msg }) {
 }
 
 export default function AIChat({ notes, inline }) {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: '你好！我是你的431备考助手 👋\n\n你可以问我知识点相关的问题，我会优先从你的知识库里找答案。如果你的知识库里没有，我会额外补充并说明。',
-      sourceLabel: null,
-    }
-  ])
+  const [messages, setMessages] = useState(loadMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
+    saveMessages(messages)
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  function clearHistory() {
+    const fresh = [WELCOME_MSG]
+    setMessages(fresh)
+    saveMessages(fresh)
+  }
 
   async function send() {
     const text = input.trim()
@@ -138,6 +160,13 @@ export default function AIChat({ notes, inline }) {
         <div className="px-4 py-3 border-b border-slate-200 flex items-center gap-2">
           <Bot size={16} className="text-indigo-600" />
           <span className="font-semibold text-slate-700 text-sm">AI 助手</span>
+          <button
+            onClick={clearHistory}
+            className="ml-auto p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            title="清空对话"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       )}
 
