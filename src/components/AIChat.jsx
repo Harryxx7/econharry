@@ -64,6 +64,19 @@ function saveStyle(s) {
   try { localStorage.setItem(STYLE_KEY, s) } catch {}
 }
 
+/**
+ * 把 DeepSeek 可能输出的 \[...\] 和 \(...\) 统一转成
+ * remark-math 能识别的 $$...$$ 和 $...$
+ */
+function normalizeMath(text) {
+  if (!text) return text
+  // \[...\] → $$...$$（块级公式）
+  text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, m) => `$$${m}$$`)
+  // \(...\) → $...$（行内公式）
+  text = text.replace(/\\\(([\s\S]*?)\\\)/g, (_, m) => `$${m}$`)
+  return text
+}
+
 // ─── 子组件 ───────────────────────────────────────────────
 function StyleSwitcher({ style, onChange }) {
   return (
@@ -198,7 +211,7 @@ export default function AIChat({ notes, inline }) {
 
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: data.answer,
+        content: normalizeMath(data.answer),
         sourceLabel: hasKbContext ? 'kb' : 'ai',
         usedNotes: hasKbContext ? relevant : [],
       }])
