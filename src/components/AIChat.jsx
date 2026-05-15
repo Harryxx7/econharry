@@ -24,6 +24,8 @@ function saveMessages(msgs) {
 import { findRelevantContext } from '../utils/knowledgeSearch'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 
 const COMPLEX_KEYWORDS = ['推导', '计算', '证明', '论述', '推算', '分析', '比较', '评价', '为什么', '如何理解']
 
@@ -60,7 +62,10 @@ function MessageBubble({ msg }) {
             <p>{msg.content}</p>
           ) : (
             <div className="prose-custom text-sm">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+              >{msg.content}</ReactMarkdown>
             </div>
           )}
         </div>
