@@ -21,7 +21,7 @@ const TABS = [
 ]
 
 export default function Layout({
-  notes, subjectTree, mode, setMode,
+  notes, categoryTree, mode, setMode,
   selectedNote, setSelectedNote,
   sidebarOpen, setSidebarOpen,
   aiOpen, setAiOpen,
@@ -112,7 +112,7 @@ export default function Layout({
           ${sidebarOpen ? 'translate-x-0 flex flex-col pt-[57px]' : '-translate-x-full'}
         `}>
           <Sidebar
-            subjectTree={subjectTree}
+            categoryTree={categoryTree}
             selectedNote={selectedNote}
             onSelectNote={handleSelectNote}
             progress={progress}

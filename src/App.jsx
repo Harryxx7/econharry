@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react'
-import { getAllNotes, getSubjectTree } from './utils/loadContent'
+import { useState } from 'react'
+import { getAllNotes, getCategoryTree } from './utils/loadContent'
 import { useProgress } from './hooks/useProgress'
 import { useSearch } from './hooks/useSearch'
 import Layout from './components/Layout'
 
 const notes = getAllNotes()
-const subjectTree = getSubjectTree(notes)
+const categoryTree = getCategoryTree(notes)
 
 export default function App() {
   const [mode, setMode] = useState('handbook') // 'handbook' | 'flashcard' | 'ai'
@@ -19,7 +19,7 @@ export default function App() {
   return (
     <Layout
       notes={notes}
-      subjectTree={subjectTree}
+      categoryTree={categoryTree}
       mode={mode}
       setMode={setMode}
       selectedNote={selectedNote}
