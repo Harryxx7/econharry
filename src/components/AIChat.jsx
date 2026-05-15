@@ -1,11 +1,44 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, BookOpen, Loader2, Trash2 } from 'lucide-react'
+import { findRelevantContext } from '../utils/knowledgeSearch'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 
+// ─── 常量 ────────────────────────────────────────────────
 const STORAGE_KEY = 'kc431_chat_history'
+const STYLE_KEY   = 'kc431_chat_style'
+
 const WELCOME_MSG = {
   role: 'assistant',
   content: '你好！我是你的431备考助手 👋\n\n你可以问我知识点相关的问题，我会优先从你的知识库里找答案。如果你的知识库里没有，我会额外补充并说明。',
   sourceLabel: null,
+}
+
+const STYLES = [
+  {
+    key: 'default',
+    label: '默认',
+    title: '均衡回答，模型自由发挥',
+  },
+  {
+    key: 'socratic',
+    label: '引导式',
+    title: '通过提问引导你主动推理，而不是直接给答案',
+  },
+  {
+    key: 'concise',
+    label: '精炼',
+    title: '先给结论再解释，简洁但不丢关键步骤',
+  },
+]
+
+const COMPLEX_KEYWORDS = ['推导', '计算', '证明', '论述', '推算', '分析', '比较', '评价', '为什么', '如何理解']
+
+// ─── 工具函数 ─────────────────────────────────────────────
+function isComplex(text) {
+  return COMPLEX_KEYWORDS.some(k => text.includes(k))
 }
 
 function loadMessages() {
@@ -21,16 +54,35 @@ function saveMessages(msgs) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(msgs.slice(-50)))
   } catch {}
 }
-import { findRelevantContext } from '../utils/knowledgeSearch'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
 
-const COMPLEX_KEYWORDS = ['推导', '计算', '证明', '论述', '推算', '分析', '比较', '评价', '为什么', '如何理解']
+function loadStyle() {
+  try { return localStorage.getItem(STYLE_KEY) || 'default' } catch { return 'default' }
+}
 
-function isComplex(text) {
-  return COMPLEX_KEYWORDS.some(k => text.includes(k))
+function saveStyle(s) {
+  try { localStorage.setItem(STYLE_KEY, s) } catch {}
+}
+
+// ─── 子组件 ───────────────────────────────────────────────
+function StyleSwitcher({ style, onChange }) {
+  return (
+    <div className="flex rounded-lg bg-slate-100 p-0.5 gap-0.5">
+      {STYLES.map(s => (
+        <button
+          key={s.key}
+          title={s.title}
+          onClick={() => onChange(s.key)}
+          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
+            style === s.key
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-700'
+          }`}
+        >
+          {s.label}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 function MessageBubble({ msg }) {
@@ -83,17 +135,25 @@ function MessageBubble({ msg }) {
   )
 }
 
+// ─── 主组件 ───────────────────────────────────────────────
 export default function AIChat({ notes, inline }) {
   const [messages, setMessages] = useState(loadMessages)
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [input, setInput]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [style, setStyle]       = useState(loadStyle)
+
   const bottomRef = useRef(null)
-  const inputRef = useRef(null)
+  const inputRef  = useRef(null)
 
   useEffect(() => {
     saveMessages(messages)
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  function updateStyle(s) {
+    setStyle(s)
+    saveStyle(s)
+  }
 
   function clearHistory() {
     const fresh = [WELCOME_MSG]
@@ -111,7 +171,7 @@ export default function AIChat({ notes, inline }) {
     setLoading(true)
 
     try {
-      const relevant = findRelevantContext(notes, text, 3)
+      const relevant    = findRelevantContext(notes, text, 3)
       const hasKbContext = relevant.length > 0
 
       const kbContext = hasKbContext
@@ -127,6 +187,7 @@ export default function AIChat({ notes, inline }) {
           question: text,
           kbContext,
           model,
+          style,
           history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
         }),
       })
@@ -161,21 +222,26 @@ export default function AIChat({ notes, inline }) {
 
   return (
     <div className={`flex flex-col ${inline ? 'flex-1 h-full' : 'h-full'}`}>
+
+      {/* 桌面/平板 header（非 inline 模式） */}
       {!inline && (
-        <div className="px-4 py-3 border-b border-slate-200 flex items-center gap-2">
-          <Bot size={16} className="text-indigo-600" />
+        <div className="px-4 py-2.5 border-b border-slate-200 flex items-center gap-2">
+          <Bot size={16} className="text-indigo-600 flex-shrink-0" />
           <span className="font-semibold text-slate-700 text-sm">AI 助手</span>
-          <button
-            onClick={clearHistory}
-            className="ml-auto p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-            title="清空对话"
-          >
-            <Trash2 size={14} />
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <StyleSwitcher style={style} onChange={updateStyle} />
+            <button
+              onClick={clearHistory}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="清空对话记录"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Messages */}
+      {/* 消息列表 */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
         {messages.map((msg, i) => (
           <MessageBubble key={i} msg={msg} />
@@ -197,8 +263,22 @@ export default function AIChat({ notes, inline }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
+      {/* 输入区（含移动端风格切换 + 清空按钮） */}
       <div className="px-3 py-3 border-t border-slate-200 bg-white">
+        {/* 移动端工具栏（inline 模式才显示） */}
+        {inline && (
+          <div className="flex items-center justify-between mb-2">
+            <StyleSwitcher style={style} onChange={updateStyle} />
+            <button
+              onClick={clearHistory}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="清空对话记录"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
+
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}

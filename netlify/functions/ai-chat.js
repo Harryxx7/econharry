@@ -1,14 +1,28 @@
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions'
 
-const SYSTEM_PROMPT = `你是一个辅助备考复旦大学431金融专硕的学习助手。
+// 基础 prompt：不含风格约束，风格由前端动态传入
+const BASE_PROMPT = `你是一个辅助备考复旦大学431金融专硕的学习助手。
 
 你的工作方式：
 - 如果用户的问题附带了"【知识库内容】"，你必须严格基于这些内容来回答，不得引入知识库以外的信息。
 - 如果没有附带知识库内容，你可以用自己的知识回答，但要保持谨慎，提醒用户这是 AI 的补充内容。
-- 回答风格：引导式、启发式，帮助用户自己思考和建立体系，不要直接罗列所有答案。
 - 语气亲切，适合备考场景，偶尔可以用例子帮助理解。
 - 不要在回答中使用固定的结构化模板，根据问题灵活组织语言。
 - 如果问题涉及计算，请一步一步展示推导过程。`
+
+// 风格偏好：软性提示，用"倾向于"而非"必须"，让模型保留判断空间
+const STYLE_HINTS = {
+  default: '', // 不附加任何偏好，模型自由发挥
+
+  socratic:
+    '\n\n【回答偏好：引导式】倾向于通过提问引导用户自己推理，而不是直接给出完整答案。' +
+    '可以先了解用户的已有理解，再用追问或提示引导他一步步得出结论。' +
+    '但如果问题非常简单或用户明确要求直接答案，不必强行绕弯。',
+
+  concise:
+    '\n\n【回答偏好：精炼式】倾向于先给出核心结论，再配以必要的推导或解释。' +
+    '避免冗长铺垫和重复，语言简洁但不过度压缩——关键推导步骤和易混淆的区分点要保留。',
+}
 
 exports.handler = async function (event) {
   const headers = {
@@ -38,7 +52,11 @@ exports.handler = async function (event) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }
   }
 
-  const { question, kbContext, model = 'deepseek-chat', history = [] } = body
+  const { question, kbContext, model = 'deepseek-chat', history = [], style = 'default' } = body
+
+  // 拼接最终 system prompt = 基础 + 风格偏好（未知 style 值降级为 default）
+  const styleHint = STYLE_HINTS[style] ?? ''
+  const systemPrompt = BASE_PROMPT + styleHint
 
   let userContent = question
   if (kbContext) {
@@ -46,7 +64,7 @@ exports.handler = async function (event) {
   }
 
   const messages = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: systemPrompt },
     ...history.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
     { role: 'user', content: userContent },
   ]
