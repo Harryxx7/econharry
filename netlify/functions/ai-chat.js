@@ -10,37 +10,36 @@ const SYSTEM_PROMPT = `你是一个辅助备考复旦大学431金融专硕的学
 - 不要在回答中使用固定的结构化模板，根据问题灵活组织语言。
 - 如果问题涉及计算，请一步一步展示推导过程。`
 
-export default async function handler(req) {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      },
-    })
+exports.handler = async function (event) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
   }
 
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 })
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' }
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) }
   }
 
   const apiKey = process.env.DEEPSEEK_API_KEY
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), { status: 500 })
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'API key not configured' }) }
   }
 
   let body
   try {
-    body = await req.json()
+    body = JSON.parse(event.body)
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 })
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) }
   }
 
   const { question, kbContext, model = 'deepseek-chat', history = [] } = body
 
-  // Build user message — inject knowledge base context if available
   let userContent = question
   if (kbContext) {
     userContent = `【知识库内容】\n${kbContext}\n\n【用户问题】\n${question}`
@@ -59,30 +58,19 @@ export default async function handler(req) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.6,
-        max_tokens: 1500,
-      }),
+      body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 1500 }),
     })
 
     if (!upstream.ok) {
       const err = await upstream.text()
-      return new Response(JSON.stringify({ error: `DeepSeek error: ${err}` }), { status: 502 })
+      return { statusCode: 502, headers, body: JSON.stringify({ error: `DeepSeek error: ${err}` }) }
     }
 
     const data = await upstream.json()
     const answer = data.choices?.[0]?.message?.content ?? '抱歉，没有收到有效回答。'
 
-    return new Response(JSON.stringify({ answer }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    })
+    return { statusCode: 200, headers, body: JSON.stringify({ answer }) }
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 })
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) }
   }
 }
