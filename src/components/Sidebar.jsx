@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { ChevronRight, ChevronDown, CheckCircle2, RefreshCw } from 'lucide-react'
 
+const CN_NUM = { 一:1, 二:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9, 十:10 }
+
+function chapterOrder(name) {
+  const m = name.match(/第([一二三四五六七八九十]+)章/)
+  if (!m) return 999
+  return CN_NUM[m[1]] ?? 999
+}
+
 export default function Sidebar({ subjectTree, selectedNote, onSelectNote, progress, getSubjectColor }) {
   const subjects = Object.keys(subjectTree)
   const [openSubjects, setOpenSubjects] = useState(() => {
@@ -40,7 +48,7 @@ export default function Sidebar({ subjectTree, selectedNote, onSelectNote, progr
               {isSubOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </button>
 
-            {isSubOpen && Object.entries(chapters).map(([chapter, chNotes]) => {
+            {isSubOpen && Object.entries(chapters).sort((a, b) => chapterOrder(a[0]) - chapterOrder(b[0])).map(([chapter, chNotes]) => {
               const chKey = `${subject}::${chapter}`
               const isChOpen = openChapters[chKey] !== false // default open
               const chMastered = progress.getMasteredCount(chNotes.map(n => n.id))
