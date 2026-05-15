@@ -1,5 +1,22 @@
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions'
 
+const DEFAULT_MODEL = 'deepseek-v4-flash'
+
+const MODEL_CONFIG = {
+  'deepseek-v4-flash': {
+    model: 'deepseek-v4-flash',
+    temperature: 0.6,
+    max_tokens: 2000,
+    thinking: { type: 'disabled' },
+  },
+  'deepseek-v4-pro': {
+    model: 'deepseek-v4-pro',
+    temperature: 0.5,
+    max_tokens: 2600,
+    thinking: { type: 'disabled' },
+  },
+}
+
 const BASE_PROMPT = `你是一个辅助备考复旦大学431金融专硕的学习助手。
 
 你的工作方式：
@@ -36,6 +53,25 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 }
 
+function jsonResponse(body, status) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  })
+}
+
+async function readUpstreamError(upstream) {
+  const text = await upstream.text().catch(() => '')
+  if (!text) return `DeepSeek request failed with HTTP ${upstream.status}`
+
+  try {
+    const parsed = JSON.parse(text)
+    return parsed.error?.message || parsed.error || text
+  } catch {
+    return text
+  }
+}
+
 // Netlify Edge Function — 原生支持流式响应，无10秒超时限制
 export default async (request) => {
   if (request.method === 'OPTIONS') {
@@ -43,32 +79,24 @@ export default async (request) => {
   }
 
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ error: 'Method not allowed' }, 405)
   }
 
   // Edge Function 用 Netlify.env 读取环境变量
   const apiKey = Netlify.env.get('DEEPSEEK_API_KEY')
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), {
-      status: 500,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ error: 'API key not configured' }, 500)
   }
 
   let body
   try {
     body = await request.json()
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ error: 'Invalid JSON' }, 400)
   }
 
-  const { question, kbContext, model = 'deepseek-v4-flash', history = [], style = 'default' } = body
+  const { question, kbContext, model = DEFAULT_MODEL, history = [], style = 'default' } = body
+  const modelConfig = MODEL_CONFIG[model] ?? MODEL_CONFIG[DEFAULT_MODEL]
 
   const styleHint = STYLE_HINTS[style] ?? ''
   const systemPrompt = BASE_PROMPT + styleHint
@@ -91,15 +119,19 @@ export default async (request) => {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 2000, stream: true }),
+      body: JSON.stringify({
+        model: modelConfig.model,
+        messages,
+        temperature: modelConfig.temperature,
+        max_tokens: modelConfig.max_tokens,
+        stream: true,
+        thinking: modelConfig.thinking,
+      }),
     })
 
     if (!upstream.ok) {
-      const err = await upstream.text()
-      return new Response(JSON.stringify({ error: `DeepSeek [${upstream.status}] ${err}` }), {
-        status: upstream.status,
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      })
+      const err = await readUpstreamError(upstream)
+      return jsonResponse({ error: `DeepSeek [${upstream.status}] ${err}` }, upstream.status)
     }
 
     // 将 DeepSeek SSE 流直接透传给浏览器
@@ -112,10 +144,7 @@ export default async (request) => {
       },
     })
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ error: err.message }, 500)
   }
 }
 
