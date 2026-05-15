@@ -159,7 +159,7 @@ function MessageBubble({ msg }) {
             <div className="prose-custom text-sm">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                rehypePlugins={[[rehypeKatex, { throwOnError: false, strict: false }]]}
               >{msg.content}</ReactMarkdown>
             </div>
           )}

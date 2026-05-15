@@ -87,12 +87,16 @@ exports.handler = async function (event) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 1500 }),
+      body: JSON.stringify({ model, messages, temperature: 0.6, max_tokens: 2000 }),
     })
 
     if (!upstream.ok) {
       const err = await upstream.text()
-      return { statusCode: 502, headers, body: JSON.stringify({ error: `DeepSeek error: ${err}` }) }
+      return {
+        statusCode: upstream.status,
+        headers,
+        body: JSON.stringify({ error: `DeepSeek [${upstream.status}] ${err}` }),
+      }
     }
 
     const data = await upstream.json()
