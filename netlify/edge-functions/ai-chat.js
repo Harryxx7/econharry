@@ -10,10 +10,11 @@ const MODEL_CONFIG = {
     thinking: { type: 'disabled' },
   },
   'deepseek-v4-pro': {
-    model: 'deepseek-v4-pro',
+    // deepseek-reasoner = 深度推理模型（原 deepseek-v4-pro API 名称尚未上线，用 reasoner 代替）
+    // 该模型内置链式推理，无需传 thinking 参数
+    model: 'deepseek-reasoner',
     temperature: 0.5,
-    max_tokens: 2600,
-    thinking: { type: 'disabled' },
+    max_tokens: 3000,
   },
 }
 
@@ -148,5 +149,5 @@ export default async (request) => {
   }
 }
 
-// AI 代理已切回普通 Netlify Function。保留此文件仅防止旧部署引用。
-export const config = { path: '/api/ai-chat-edge-disabled' }
+// Edge Function 负责流式响应（Deno 运行时，原生 SSE 支持，无 Lambda 缓冲问题）
+export const config = { path: '/api/ai-chat' }
