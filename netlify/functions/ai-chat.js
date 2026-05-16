@@ -10,8 +10,7 @@ const MODEL_CONFIG = {
     thinking: { type: 'disabled' },
   },
   'deepseek-v4-pro': {
-    // deepseek-reasoner = 深度推理模型，内置链式推理，无需传 thinking 参数
-    model: 'deepseek-reasoner',
+    model: 'deepseek-v4-pro',
     temperature: 0.5,
     max_tokens: 3000,
   },
