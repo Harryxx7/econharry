@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* 启用 class-based 暗色模式（在 html 上加 .dark 即可） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 暗色模式下知识库引用块的 CSS 变量 */
+:root {
+  --kc-blockquote-border: #1e3a5f;
+  --kc-blockquote-bg: #f3efe6;
+}
+.dark {
+  --kc-blockquote-border: #4a7abf;
+  --kc-blockquote-bg: #1e293b;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -15,6 +28,11 @@
     margin: 0;
     background-color: #f8f7f4;
     color: #1a1a1a;
+  }
+
+  .dark body {
+    background-color: #0f172a;
+    color: #e2e8f0;
   }
 }
 
@@ -59,6 +77,10 @@
   padding-bottom: 0.25rem;
   border-bottom: 2px solid #e2e8f0;
 }
+.dark .prose-custom h2 {
+  color: #e2e8f0;
+  border-bottom-color: #334155;
+}
 
 .prose-custom h3 {
   font-size: 1rem;
@@ -67,12 +89,14 @@
   margin-top: 1rem;
   margin-bottom: 0.375rem;
 }
+.dark .prose-custom h3 { color: #cbd5e1; }
 
 .prose-custom p {
   line-height: 1.75;
   margin-bottom: 0.75rem;
   color: #374151;
 }
+.dark .prose-custom p { color: #94a3b8; }
 
 .prose-custom ul, .prose-custom ol {
   padding-left: 1.5rem;
@@ -84,11 +108,13 @@
   color: #374151;
   margin-bottom: 0.25rem;
 }
+.dark .prose-custom li { color: #94a3b8; }
 
 .prose-custom strong {
   color: #1e293b;
   font-weight: 600;
 }
+.dark .prose-custom strong { color: #e2e8f0; }
 
 .prose-custom blockquote {
   border-left: 3px solid #6366f1;
@@ -99,6 +125,11 @@
   font-style: normal;
   color: #4338ca;
 }
+.dark .prose-custom blockquote {
+  border-left-color: #818cf8;
+  background: #1e1b4b;
+  color: #a5b4fc;
+}
 
 .prose-custom code {
   background: #f1f5f9;
@@ -107,12 +138,20 @@
   font-size: 0.875rem;
   color: #7c3aed;
 }
+.dark .prose-custom code {
+  background: #1e293b;
+  color: #a78bfa;
+}
 
 /* Highlight search match */
 mark {
   background: #fef08a;
   padding: 0 2px;
   border-radius: 2px;
+}
+.dark mark {
+  background: #713f12;
+  color: #fef3c7;
 }
 
 /* Scrollbar */
@@ -126,4 +165,7 @@ mark {
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
 }

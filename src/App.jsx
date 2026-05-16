@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { getAllNotes, getCategoryTree } from './utils/loadContent'
 import { useProgress } from './hooks/useProgress'
 import { useSearch } from './hooks/useSearch'
+import { useDark } from './hooks/useDark'
 import Layout from './components/Layout'
 
 const notes = getAllNotes()
@@ -15,6 +16,7 @@ export default function App() {
 
   const progress = useProgress()
   const search = useSearch(notes)
+  const { isDark, toggle: toggleDark } = useDark()
 
   return (
     <Layout
@@ -30,6 +32,8 @@ export default function App() {
       setAiOpen={setAiOpen}
       progress={progress}
       search={search}
+      isDark={isDark}
+      toggleDark={toggleDark}
     />
   )
 }

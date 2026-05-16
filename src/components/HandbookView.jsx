@@ -8,9 +8,9 @@ import { Tag, Flame } from 'lucide-react'
 
 const DIFFICULTY_LABEL = { easy: '基础', medium: '重点', hard: '难点' }
 const DIFFICULTY_COLOR = {
-  easy: 'bg-green-100 text-green-700',
-  medium: 'bg-amber-100 text-amber-700',
-  hard: 'bg-red-100 text-red-700',
+  easy:   'bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300',
+  medium: 'bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300',
+  hard:   'bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-300',
 }
 
 // 应试模式：只保留"核心考点"和"答案要点"两个 section
@@ -21,22 +21,22 @@ function filterExamMode(content) {
     .join('\n\n')
 }
 
-// blockquote → 学术卡片（与 cheatsheet.html 配色一致：米色底 + 海军蓝左边框）
+// blockquote → 学术卡片（使用 CSS 变量，支持暗色模式）
 const mdComponents = {
   blockquote({ children }) {
     return (
       <div
-        style={{ borderLeft: '4px solid #1e3a5f', background: '#f3efe6' }}
+        style={{ borderLeft: '4px solid var(--kc-blockquote-border)', background: 'var(--kc-blockquote-bg)' }}
         className="px-4 py-2.5 my-3 rounded-r text-sm leading-relaxed"
       >
         {children}
       </div>
     )
   },
-  // 表格外层加横向滚动容器，防止移动端内容堆叠
+  // 表格外层加横向滚动容器
   table({ children }) {
     return (
-      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="my-3 rounded border border-slate-200">
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="my-3 rounded border border-slate-200 dark:border-slate-700">
         <table style={{ minWidth: '100%', borderCollapse: 'collapse' }}>{children}</table>
       </div>
     )
@@ -48,9 +48,10 @@ export default function HandbookView({ note, getSubjectColor }) {
 
   // 切换笔记时重置为学习模式
   useEffect(() => { setExamMode(false) }, [note?.id])
+
   if (!note) {
     return (
-      <div className="flex-1 flex items-center justify-center text-slate-400 text-sm">
+      <div className="flex-1 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
         从左侧选择一个知识点开始学习
       </div>
     )
@@ -64,22 +65,22 @@ export default function HandbookView({ note, getSubjectColor }) {
   return (
     <article className="flex-1 overflow-y-auto">
       {/* Hero header */}
-      <div className={`${color.bg} px-6 py-5 border-b border-slate-200`}>
+      <div className={`${color.bg} px-6 py-5 border-b border-slate-200 dark:border-slate-700`}>
         {/* 面包屑 + 应试/学习切换 */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
           <span className={`font-semibold ${color.text}`}>{note.subject}</span>
           <span>/</span>
           <span>{note.chapter}</span>
           {isKnowledgeBase && (
-            <div className="ml-auto flex rounded-lg bg-white/60 p-0.5 gap-0.5">
+            <div className="ml-auto flex rounded-lg bg-white/60 dark:bg-slate-900/60 p-0.5 gap-0.5">
               {['学习', '应试'].map(label => (
                 <button
                   key={label}
                   onClick={() => setExamMode(label === '应试')}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                     (label === '应试') === examMode
-                      ? 'bg-white text-slate-700 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
                   {label}
@@ -89,7 +90,7 @@ export default function HandbookView({ note, getSubjectColor }) {
           )}
         </div>
 
-        <h1 className="text-xl font-bold text-slate-800 mb-3">{note.title}</h1>
+        <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">{note.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${DIFFICULTY_COLOR[diff]}`}>
@@ -105,7 +106,7 @@ export default function HandbookView({ note, getSubjectColor }) {
             </span>
           )}
           {note.tags?.map(tag => (
-            <span key={tag} className="flex items-center gap-1 text-xs px-2 py-0.5 bg-white/70 rounded-full text-slate-600 border border-slate-200">
+            <span key={tag} className="flex items-center gap-1 text-xs px-2 py-0.5 bg-white/70 dark:bg-slate-900/50 rounded-full text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
               <Tag size={10} />
               {tag}
             </span>
