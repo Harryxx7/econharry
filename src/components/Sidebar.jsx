@@ -78,7 +78,7 @@ export default function Sidebar({ categoryTree, selectedNote, onSelectNote, prog
             {/* 分类 header */}
             <button
               onClick={() => toggleCategory(category)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors uppercase tracking-wide"
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1a1a1a] transition-colors uppercase tracking-wide"
             >
               {isCatOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
               <span className="flex-1 text-left">{category}</span>
@@ -118,7 +118,7 @@ export default function Sidebar({ categoryTree, selectedNote, onSelectNote, prog
                           {/* 章节 header */}
                           <button
                             onClick={() => toggleChapter(chKey)}
-                            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#1a1a1a] transition-colors"
                           >
                             {isChOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                             <span className="flex-1 text-left font-medium">{chapter}</span>
@@ -137,7 +137,7 @@ export default function Sidebar({ categoryTree, selectedNote, onSelectNote, prog
                                 className={`w-full flex items-center gap-2 pl-6 pr-2 py-1.5 rounded-md text-xs transition-colors text-left ${
                                   isSelected
                                     ? `${color.bg} ${color.text} font-semibold`
-                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1a1a1a]'
                                 }`}
                               >
                                 {status === 'mastered' ? (

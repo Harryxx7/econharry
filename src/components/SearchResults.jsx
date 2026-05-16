@@ -31,7 +31,7 @@ export default function SearchResults({ results, query, onSelect, getSubjectColo
             <button
               key={note.id}
               onClick={() => onSelect(note)}
-              className="w-full text-left p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all"
+              className="w-full text-left p-4 bg-white dark:bg-[#0f0f0f] rounded-xl border border-slate-200 dark:border-[#262626] hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all"
             >
               <div className="flex items-center gap-2 mb-1">
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${color.light} ${color.text}`}>

@@ -36,7 +36,7 @@ const mdComponents = {
   // 表格外层加横向滚动容器
   table({ children }) {
     return (
-      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="my-3 rounded border border-slate-200 dark:border-slate-700">
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="my-3 rounded border border-slate-200 dark:border-[#262626]">
         <table style={{ minWidth: '100%', borderCollapse: 'collapse' }}>{children}</table>
       </div>
     )
@@ -65,21 +65,21 @@ export default function HandbookView({ note, getSubjectColor }) {
   return (
     <article className="flex-1 overflow-y-auto">
       {/* Hero header */}
-      <div className={`${color.bg} px-6 py-5 border-b border-slate-200 dark:border-slate-700`}>
+      <div className={`${color.bg} px-6 py-5 border-b border-slate-200 dark:border-[#262626]`}>
         {/* 面包屑 + 应试/学习切换 */}
         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
           <span className={`font-semibold ${color.text}`}>{note.subject}</span>
           <span>/</span>
           <span>{note.chapter}</span>
           {isKnowledgeBase && (
-            <div className="ml-auto flex rounded-lg bg-white/60 dark:bg-slate-900/60 p-0.5 gap-0.5">
+            <div className="ml-auto flex rounded-lg bg-white/60 dark:bg-[#0f0f0f]/80 p-0.5 gap-0.5">
               {['学习', '应试'].map(label => (
                 <button
                   key={label}
                   onClick={() => setExamMode(label === '应试')}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                     (label === '应试') === examMode
-                      ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm'
+                      ? 'bg-white dark:bg-[#1a1a1a] text-slate-700 dark:text-slate-200 shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
@@ -106,7 +106,7 @@ export default function HandbookView({ note, getSubjectColor }) {
             </span>
           )}
           {note.tags?.map(tag => (
-            <span key={tag} className="flex items-center gap-1 text-xs px-2 py-0.5 bg-white/70 dark:bg-slate-900/50 rounded-full text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+            <span key={tag} className="flex items-center gap-1 text-xs px-2 py-0.5 bg-white/70 dark:bg-slate-900/50 rounded-full text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#262626]">
               <Tag size={10} />
               {tag}
             </span>

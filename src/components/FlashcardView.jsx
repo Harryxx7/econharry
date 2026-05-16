@@ -77,7 +77,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-200 dark:border-[#262626] bg-white dark:bg-[#0f0f0f]">
         <div className="flex gap-1 flex-wrap">
           {subjects.map(s => (
             <button
@@ -86,7 +86,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                 filterSubject === s
                   ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-indigo-300 dark:hover:border-indigo-700'
+                  : 'border-slate-200 dark:border-[#262626] text-slate-600 dark:text-slate-400 hover:border-indigo-300 dark:hover:border-indigo-700'
               }`}
             >
               {s}
@@ -102,7 +102,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                 filterStatus === val
                   ? 'bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 border-slate-800 dark:border-slate-200'
-                  : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
+                  : 'border-slate-200 dark:border-[#262626] text-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500'
               }`}
             >
               {label}
@@ -113,7 +113,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
             className={`p-1.5 rounded-full border transition-colors ${
               isRandom
                 ? 'bg-indigo-100 dark:bg-indigo-900/60 border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400'
-                : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400'
+                : 'border-slate-200 dark:border-[#262626] text-slate-500 dark:text-slate-400 hover:border-slate-400'
             }`}
             title={isRandom ? '顺序练习' : '随机练习'}
           >
@@ -128,7 +128,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
           <span>{index + 1} / {total}</span>
           <span>已掌握 {mastered}/{total}</span>
         </div>
-        <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-slate-100 dark:bg-[#1a1a1a] rounded-full overflow-hidden">
           <div
             className="h-full bg-emerald-400 rounded-full transition-all duration-500"
             style={{ width: `${total > 0 ? (mastered / total) * 100 : 0}%` }}
@@ -145,8 +145,8 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
         >
           <div className={`card-inner ${flipped ? 'flipped' : ''}`}>
             {/* Front */}
-            <div className={`card-face ${color.bg} border-2 border-slate-200 dark:border-slate-700 flex flex-col`}>
-              <div className={`px-4 py-2 ${color.light} border-b border-slate-200 dark:border-slate-700 flex items-center justify-between`}>
+            <div className={`card-face ${color.bg} border-2 border-slate-200 dark:border-[#262626] flex flex-col`}>
+              <div className={`px-4 py-2 ${color.light} border-b border-slate-200 dark:border-[#262626] flex items-center justify-between`}>
                 <span className={`text-xs font-semibold ${color.text}`}>{card?.subject}</span>
                 <span className="text-xs text-slate-400 dark:text-slate-500">点击翻转</span>
               </div>
@@ -157,7 +157,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
             </div>
 
             {/* Back */}
-            <div className="card-face card-back bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-800 flex flex-col">
+            <div className="card-face card-back bg-white dark:bg-[#0f0f0f] border-2 border-indigo-200 dark:border-indigo-800 flex flex-col">
               <div className="px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border-b border-indigo-100 dark:border-indigo-900 flex items-center justify-between">
                 <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">答案</span>
                 <button
@@ -185,7 +185,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
           <button
             onClick={() => go(-1)}
             disabled={index === 0}
-            className="p-2 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors text-slate-600 dark:text-slate-400"
+            className="p-2 rounded-full border border-slate-200 dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors text-slate-600 dark:text-slate-400"
           >
             <ChevronLeft size={20} />
           </button>
@@ -217,7 +217,7 @@ export default function FlashcardView({ notes, progress, getSubjectColor }) {
           <button
             onClick={() => go(1)}
             disabled={index === total - 1}
-            className="p-2 rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors text-slate-600 dark:text-slate-400"
+            className="p-2 rounded-full border border-slate-200 dark:border-[#262626] hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors text-slate-600 dark:text-slate-400"
           >
             <ChevronRight size={20} />
           </button>

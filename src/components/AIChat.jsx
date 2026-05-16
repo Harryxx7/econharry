@@ -88,7 +88,7 @@ function normalizeMath(text) {
 // ─── 子组件 ───────────────────────────────────────────────
 function ModelSwitcher({ model, onChange }) {
   return (
-    <div className="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 gap-0.5">
+    <div className="flex rounded-lg bg-slate-100 dark:bg-[#1a1a1a] p-0.5 gap-0.5">
       {MODELS.map(m => (
         <button
           key={m.key}
@@ -96,7 +96,7 @@ function ModelSwitcher({ model, onChange }) {
           onClick={() => onChange(m.key)}
           className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
             model === m.key
-              ? 'bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-400 shadow-sm'
+              ? 'bg-white dark:bg-[#1a1a1a] text-violet-600 dark:text-violet-400 shadow-sm'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
           }`}
         >
@@ -109,7 +109,7 @@ function ModelSwitcher({ model, onChange }) {
 
 function StyleSwitcher({ style, onChange }) {
   return (
-    <div className="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 gap-0.5">
+    <div className="flex rounded-lg bg-slate-100 dark:bg-[#1a1a1a] p-0.5 gap-0.5">
       {STYLES.map(s => (
         <button
           key={s.key}
@@ -117,7 +117,7 @@ function StyleSwitcher({ style, onChange }) {
           onClick={() => onChange(s.key)}
           className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
             style === s.key
-              ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+              ? 'bg-white dark:bg-[#1a1a1a] text-indigo-600 dark:text-indigo-400 shadow-sm'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
           }`}
         >
@@ -151,7 +151,7 @@ function MessageBubble({ msg }) {
         <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser
             ? 'bg-indigo-600 text-white rounded-tr-sm'
-            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-tl-sm'
+            : 'bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#262626] text-slate-700 dark:text-slate-200 rounded-tl-sm'
         }`}>
           {isUser ? (
             <p>{msg.content}</p>
@@ -312,7 +312,7 @@ export default function AIChat({ notes, inline }) {
 
       {/* 桌面/平板 header（非 inline 模式） */}
       {!inline && (
-        <div className="px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
+        <div className="px-4 py-2.5 border-b border-slate-200 dark:border-[#262626] flex items-center gap-2">
           <Bot size={16} className="text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
           <span className="font-semibold text-slate-700 dark:text-slate-200 text-sm">AI 助手</span>
           <div className="ml-auto flex items-center gap-2">
@@ -339,7 +339,7 @@ export default function AIChat({ notes, inline }) {
             <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/60 flex items-center justify-center flex-shrink-0">
               <Loader2 size={14} className="text-indigo-600 dark:text-indigo-400 animate-spin" />
             </div>
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-sm px-4 py-2.5">
+            <div className="bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#262626] rounded-2xl rounded-tl-sm px-4 py-2.5">
               <div className="flex gap-1 items-center h-5">
                 <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -352,7 +352,7 @@ export default function AIChat({ notes, inline }) {
       </div>
 
       {/* 输入区（含移动端风格切换 + 清空按钮） */}
-      <div className="px-3 py-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+      <div className="px-3 py-3 border-t border-slate-200 dark:border-[#262626] bg-white dark:bg-[#0f0f0f]">
         {/* 移动端工具栏（inline 模式才显示） */}
         {inline && (
           <div className="flex items-center justify-between mb-2">
@@ -378,7 +378,7 @@ export default function AIChat({ notes, inline }) {
             onKeyDown={onKeyDown}
             placeholder="问个知识点..."
             rows={1}
-            className="flex-1 resize-none text-sm px-3 py-2 bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-300 dark:focus:border-indigo-700 focus:bg-white dark:focus:bg-slate-800 transition-all max-h-32 overflow-y-auto"
+            className="flex-1 resize-none text-sm px-3 py-2 bg-slate-50 dark:bg-[#1a1a1a] dark:text-slate-200 dark:placeholder-slate-500 border border-slate-200 dark:border-[#262626] rounded-xl focus:outline-none focus:border-indigo-300 dark:focus:border-indigo-700 focus:bg-white dark:focus:bg-slate-800 transition-all max-h-32 overflow-y-auto"
             style={{ minHeight: '38px', fontSize: '16px' }}
           />
           <button

@@ -12,7 +12,7 @@ const SUBJECT_COLORS = {
   '投资学':     { bg: 'bg-amber-50 dark:bg-amber-950/60',    accent: 'bg-amber-500',   text: 'text-amber-700 dark:text-amber-300',   light: 'bg-amber-100 dark:bg-amber-900/60' },
 }
 export const getSubjectColor = (subject) =>
-  SUBJECT_COLORS[subject] ?? { bg: 'bg-slate-50 dark:bg-slate-800', accent: 'bg-slate-400', text: 'text-slate-700 dark:text-slate-300', light: 'bg-slate-100 dark:bg-slate-800' }
+  SUBJECT_COLORS[subject] ?? { bg: 'bg-slate-50 dark:bg-[#1a1a1a]', accent: 'bg-slate-400', text: 'text-slate-700 dark:text-slate-300', light: 'bg-slate-100 dark:bg-[#1a1a1a]' }
 
 const TABS = [
   { key: 'handbook',  label: '手册',  icon: BookOpen },
@@ -38,9 +38,9 @@ export default function Layout({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#f8f7f4] dark:bg-slate-950 overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#f8f7f4] dark:bg-black overflow-hidden">
       {/* Top bar */}
-      <header className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm z-30">
+      <header className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#0f0f0f] border-b border-slate-200 dark:border-[#262626] shadow-sm z-30">
         {/* Mobile menu toggle */}
         <button
           className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300"
@@ -62,7 +62,7 @@ export default function Layout({
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="搜索知识点..."
-            className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-100 dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-500 rounded-full border border-transparent focus:outline-none focus:border-indigo-300 focus:bg-white dark:focus:bg-slate-700 transition-all"
+            className="w-full pl-9 pr-4 py-1.5 text-sm bg-slate-100 dark:bg-[#1a1a1a] dark:text-slate-200 dark:placeholder-slate-500 rounded-full border border-transparent focus:outline-none focus:border-indigo-300 focus:bg-white dark:focus:bg-slate-700 transition-all"
             style={{ fontSize: '16px' }}
           />
         </div>
@@ -117,7 +117,7 @@ export default function Layout({
         {/* Sidebar */}
         <aside className={`
           fixed lg:static top-0 left-0 h-full z-20
-          w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex-shrink-0
+          w-64 bg-white dark:bg-[#0f0f0f] border-r border-slate-200 dark:border-[#262626] flex-shrink-0
           transform transition-transform duration-300
           lg:translate-x-0 lg:flex lg:flex-col
           ${sidebarOpen ? 'translate-x-0 flex flex-col pt-[57px]' : '-translate-x-full'}
@@ -155,15 +155,15 @@ export default function Layout({
 
         {/* AI panel — desktop right drawer */}
         {aiOpen && (
-          <aside className="hidden lg:flex flex-col w-80 xl:w-96 border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex-shrink-0">
+          <aside className="hidden lg:flex flex-col w-80 xl:w-96 border-l border-slate-200 dark:border-[#262626] bg-white dark:bg-[#0f0f0f] flex-shrink-0">
             <AIChat notes={notes} />
           </aside>
         )}
 
         {/* AI drawer — tablet */}
         {aiOpen && (
-          <div className="lg:hidden fixed inset-y-0 right-0 w-80 bg-white dark:bg-slate-900 shadow-xl z-30 flex flex-col border-l border-slate-200 dark:border-slate-700 pt-[57px]">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+          <div className="lg:hidden fixed inset-y-0 right-0 w-80 bg-white dark:bg-[#0f0f0f] shadow-xl z-30 flex flex-col border-l border-slate-200 dark:border-[#262626] pt-[57px]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-[#262626]">
               <span className="font-semibold text-slate-700 dark:text-slate-200">AI 助手</span>
               <button onClick={() => setAiOpen(false)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400">
                 <X size={18} />
@@ -175,7 +175,7 @@ export default function Layout({
       </div>
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden flex border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 z-10">
+      <nav className="md:hidden flex border-t border-slate-200 dark:border-[#262626] bg-white dark:bg-[#0f0f0f] z-10">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}

@@ -10,7 +10,7 @@
 }
 .dark {
   --kc-blockquote-border: #4a7abf;
-  --kc-blockquote-bg: #1e293b;
+  --kc-blockquote-bg: #111111;
 }
 
 @layer base {
@@ -31,7 +31,7 @@
   }
 
   .dark body {
-    background-color: #0f172a;
+    background-color: #000000;
     color: #e2e8f0;
   }
 }
