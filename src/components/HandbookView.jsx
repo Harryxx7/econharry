@@ -33,6 +33,14 @@ const mdComponents = {
       </div>
     )
   },
+  // 表格外层加横向滚动容器，防止移动端内容堆叠
+  table({ children }) {
+    return (
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }} className="my-3 rounded border border-slate-200">
+        <table style={{ minWidth: '100%', borderCollapse: 'collapse' }}>{children}</table>
+      </div>
+    )
+  },
 }
 
 export default function HandbookView({ note, getSubjectColor }) {

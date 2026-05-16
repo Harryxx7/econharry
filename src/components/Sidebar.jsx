@@ -5,9 +5,13 @@ import { CATEGORY_ORDER, SUBJECT_ORDER } from '../utils/loadContent'
 const CN_NUM = { 一:1, 二:2, 三:3, 四:4, 五:5, 六:6, 七:7, 八:8, 九:9, 十:10 }
 
 function chapterOrder(name) {
-  const m = name.match(/第([一二三四五六七八九十]+)章/)
+  const m = name.match(/第([一二三四五六七八九十]+)[讲章]/)
   if (!m) return 999
-  return CN_NUM[m[1]] ?? 999
+  const chars = m[1]
+  if (chars === '十') return 10
+  if (chars.length > 1 && chars[0] === '十') return 10 + (CN_NUM[chars[1]] ?? 0)
+  if (chars.length > 1 && chars[1] === '十') return (CN_NUM[chars[0]] ?? 1) * 10
+  return CN_NUM[chars] ?? 999
 }
 
 function sortSubjects(subjects) {
@@ -37,13 +41,13 @@ export default function Sidebar({ categoryTree, selectedNote, onSelectNote, prog
 
   const [openCategories, setOpenCategories] = useState(() => {
     const init = {}
-    categories.forEach(c => { init[c] = true })
+    categories.forEach(c => { init[c] = false })
     return init
   })
   const [openSubjects, setOpenSubjects] = useState(() => {
     const init = {}
     categories.forEach(c => {
-      Object.keys(categoryTree[c] || {}).forEach(s => { init[`${c}::${s}`] = true })
+      Object.keys(categoryTree[c] || {}).forEach(s => { init[`${c}::${s}`] = false })
     })
     return init
   })
@@ -107,7 +111,7 @@ export default function Sidebar({ categoryTree, selectedNote, onSelectNote, prog
                     .sort((a, b) => chapterOrder(a[0]) - chapterOrder(b[0]))
                     .map(([chapter, chNotes]) => {
                       const chKey = `${subKey}::${chapter}`
-                      const isChOpen = openChapters[chKey] !== false // 默认展开
+                      const isChOpen = openChapters[chKey] === true // 默认折叠
                       const chMastered = progress.getMasteredCount(chNotes.map(n => n.id))
 
                       return (
