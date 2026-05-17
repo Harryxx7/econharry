@@ -80,6 +80,27 @@ export function getAllNotes() {
   return notes
 }
 
+/**
+ * 从 MD 内容中提取 h2/h3/h4 标题，构建层级树
+ * 返回 [{ level, text, children[] }, ...]
+ */
+export function parseOutline(content) {
+  const nodes = []
+  for (const line of content.split('\n')) {
+    const m = line.match(/^(#{2,4})\s+(.+)/)
+    if (m) nodes.push({ level: m[1].length, text: m[2].trim(), children: [] })
+  }
+  const root = []
+  const stack = [] // [{ level, node }]
+  for (const node of nodes) {
+    while (stack.length && stack[stack.length - 1].level >= node.level) stack.pop()
+    if (stack.length === 0) root.push(node)
+    else stack[stack.length - 1].node.children.push(node)
+    stack.push({ level: node.level, node })
+  }
+  return root
+}
+
 // 返回 { 分类: { 科目: { 章节: [notes] } } }
 export function getCategoryTree(notes) {
   const tree = {}

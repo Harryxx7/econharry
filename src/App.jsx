@@ -9,10 +9,22 @@ const notes = getAllNotes()
 const categoryTree = getCategoryTree(notes)
 
 export default function App() {
-  const [mode, setMode] = useState('handbook') // 'handbook' | 'flashcard' | 'ai'
+  const [mode, setMode] = useState('handbook') // 'handbook' | 'flashcard' | 'ai' | 'review'
   const [selectedNote, setSelectedNote] = useState(notes[0] ?? null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
+  const [fromReview, setFromReview] = useState(false)
+
+  function goToHandbook(note) {
+    setSelectedNote(note)
+    setMode('handbook')
+    setFromReview(true)
+  }
+
+  function backToReview() {
+    setMode('review')
+    setFromReview(false)
+  }
 
   const progress = useProgress()
   const search = useSearch(notes)
@@ -34,6 +46,9 @@ export default function App() {
       search={search}
       isDark={isDark}
       toggleDark={toggleDark}
+      fromReview={fromReview}
+      backToReview={backToReview}
+      goToHandbook={goToHandbook}
     />
   )
 }

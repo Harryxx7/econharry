@@ -55,13 +55,16 @@ function scoreNote(note, terms) {
     if (tagsL.some(t => t.includes(term))) score += 6   // 标签命中
     if (chapterL.includes(term))           score += 4   // 章节命中
     if (subjectL.includes(term))           score += 3   // 科目命中
-    // 内容命中：按出现次数累加，单词上限 5 分（避免高频词刷分）
+    // 内容命中：按出现次数累加，单词上限 10 分（内容丰富的文件应得到更高权重）
     const hits = Math.min(
       (contentL.match(new RegExp(escapeRegex(term), 'g')) || []).length,
-      5
+      10
     )
     score += hits
   }
+
+  // 高频考点加权
+  if (note.frequency === 'high') score += 3
 
   return score
 }
@@ -81,18 +84,20 @@ export function searchNotes(notes, query) {
 }
 
 /**
- * AI 上下文检索：阈值为 5，只返回强相关笔记
- * 阈值设高一些，防止把弱相关内容塞给 AI——那比没有上下文更糟糕
- * （AI 会被要求基于该内容回答，内容不对等于错误引导）
+ * AI 上下文检索：返回最相关的笔记列表
+ * 每篇内容截断至 1500 字，防止撑爆 context window
  */
-export function findRelevantContext(notes, query, maxNotes = 3) {
+export function findRelevantContext(notes, query, maxNotes = 5) {
   if (!query?.trim()) return []
   const terms = buildTerms(query)
 
   return notes
     .map(note => ({ note, score: scoreNote(note, terms) }))
-    .filter(({ score }) => score >= 5)
+    .filter(({ score }) => score >= 3)
     .sort((a, b) => b.score - a.score)
     .slice(0, maxNotes)
-    .map(({ note }) => note)
+    .map(({ note }) => ({
+      ...note,
+      content: note.content.slice(0, 1500),
+    }))
 }

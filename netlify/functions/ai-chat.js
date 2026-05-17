@@ -92,6 +92,44 @@ export default async (request) => {
     return jsonResponse({ error: 'Invalid JSON' }, 400)
   }
 
+  // Review 摘要分支：单轮生成，不带对话历史
+  if (body.type === 'review') {
+    const mdContent = body.content || ''
+    const reviewConfig = MODEL_CONFIG['deepseek-v4-flash']
+    const prompt =
+      '你是一位熟悉中国金融专硕（431）备考的学习助手。以下是某个知识点的学习笔记原文：\n\n---\n' +
+      mdContent +
+      '\n---\n\n请基于上述原文，提炼出该知识点的核心考点与答题要点，供考前快速回顾使用。\n\n要求：\n' +
+      '- 所有内容必须来自原文，不得添加、演绎或改写原文以外的知识\n' +
+      '- 保留原文中的专业术语、关键结论和重要数字\n' +
+      '- 语言简洁直接，面向考试作答，不需要解释原理推导过程\n' +
+      '- 内容覆盖该知识点最可能被考到的部分'
+    try {
+      const upstream = await fetch(DEEPSEEK_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: reviewConfig.model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: reviewConfig.temperature,
+          max_tokens: 800,
+          stream: true,
+          thinking: reviewConfig.thinking,
+        }),
+      })
+      if (!upstream.ok) {
+        const err = await readUpstreamError(upstream)
+        return jsonResponse({ error: `DeepSeek [${upstream.status}] ${err}` }, upstream.status)
+      }
+      return new Response(upstream.body, {
+        status: 200,
+        headers: { ...CORS_HEADERS, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no' },
+      })
+    } catch (err) {
+      return jsonResponse({ error: err.message }, 500)
+    }
+  }
+
   const { question, kbContext, model = DEFAULT_MODEL, history = [], style = 'default' } = body
   const modelConfig = MODEL_CONFIG[model] ?? MODEL_CONFIG[DEFAULT_MODEL]
 

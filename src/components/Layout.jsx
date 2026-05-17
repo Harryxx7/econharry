@@ -1,9 +1,10 @@
-import { BookOpen, Layers, Bot, Menu, X, Search, Sun, Moon } from 'lucide-react'
+import { BookOpen, Layers, Bot, Menu, X, Search, Sun, Moon, RotateCcw, ChevronLeft } from 'lucide-react'
 import Sidebar from './Sidebar'
 import HandbookView from './HandbookView'
 import FlashcardView from './FlashcardView'
 import AIChat from './AIChat'
 import SearchResults from './SearchResults'
+import ReviewMode from './Review/ReviewMode'
 
 const SUBJECT_COLORS = {
   '货币银行学': { bg: 'bg-blue-50 dark:bg-blue-950/60',     accent: 'bg-blue-500',    text: 'text-blue-700 dark:text-blue-300',    light: 'bg-blue-100 dark:bg-blue-900/60' },
@@ -18,6 +19,7 @@ const TABS = [
   { key: 'handbook',  label: '手册',  icon: BookOpen },
   { key: 'flashcard', label: '闪卡',  icon: Layers },
   { key: 'ai',        label: 'AI 助手', icon: Bot },
+  { key: 'review',    label: '复习',  icon: RotateCcw },
 ]
 
 export default function Layout({
@@ -27,6 +29,7 @@ export default function Layout({
   aiOpen, setAiOpen,
   progress, search,
   isDark, toggleDark,
+  fromReview, backToReview, goToHandbook,
 }) {
   const { query, setQuery, results } = search
 
@@ -34,7 +37,7 @@ export default function Layout({
     setSelectedNote(note)
     setQuery('')
     setSidebarOpen(false)
-    if (mode === 'ai') setMode('handbook')
+    if (mode === 'ai' || mode === 'review') setMode('handbook')
   }
 
   return (
@@ -94,6 +97,16 @@ export default function Layout({
           {aiOpen ? '收起' : 'AI'}
         </button>
 
+        {/* 返回复习 button (shown when jumped from Review to Handbook) */}
+        {fromReview && mode === 'handbook' && (
+          <button
+            onClick={backToReview}
+            className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors"
+          >
+            <ChevronLeft size={15} /> 返回复习
+          </button>
+        )}
+
         {/* Dark mode toggle */}
         <button
           onClick={toggleDark}
@@ -147,6 +160,12 @@ export default function Layout({
               notes={notes}
               progress={progress}
               getSubjectColor={getSubjectColor}
+            />
+          ) : mode === 'review' ? (
+            <ReviewMode
+              notes={notes}
+              setMode={setMode}
+              setSelectedNote={goToHandbook}
             />
           ) : (
             <AIChat notes={notes} inline />
